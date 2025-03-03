@@ -8,18 +8,23 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckDistance = 0.2f;
+    [SerializeField] private int maxJumps = 1;
 
-    private bool isGrounded;
+    private int jumpCount;
     private Vector3 moveDirection;
 
     private void Update()
     {
-        // Check if the player is on the ground
-        isGrounded = Physics.Raycast(groundCheck.position, Vector3.down, groundCheckDistance);
+        bool wasGrounded = Physics.Raycast(groundCheck.position, Vector3.down, groundCheckDistance);
+        
+        if (wasGrounded && jumpCount != 0)
+        {
+            jumpCount = 0; 
+        }
 
         HandleMovement();
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.Space) && jumpCount < maxJumps)
         {
             Jump();
         }
@@ -42,5 +47,6 @@ public class PlayerController : MonoBehaviour
     private void Jump()
     {
         playerRigidbody.linearVelocity = new Vector3(playerRigidbody.linearVelocity.x, jumpForce, playerRigidbody.linearVelocity.z);
+        jumpCount++;
     }
 }
