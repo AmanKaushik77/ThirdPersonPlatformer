@@ -13,7 +13,7 @@ public class Coin : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            ScoreManager.Instance.AddScore(1);
+            ScoreManager.Instance.AddScore();
             Destroy(gameObject);
         }
     }
