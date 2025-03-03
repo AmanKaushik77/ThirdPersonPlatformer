@@ -3,22 +3,30 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Rigidbody playerRigidbody;
-    [SerializeField] private float playerSpeed = 5f;
+    [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 7f;
-    [SerializeField] private InputManager inputManager;
+    [SerializeField] private Transform cameraTransform;
 
     private bool isGrounded = true;
+    private Vector3 moveDirection;
 
-    private void Start()
+    private void Update()
     {
-        inputManager.OnMove.AddListener(MovePlayer);
-        inputManager.OnJump.AddListener(Jump);
+        HandleMovement();
+        if (Input.GetKeyDown(KeyCode.Space)) Jump();
     }
 
-    private void MovePlayer(Vector2 input)
+    private void HandleMovement()
     {
-        Vector3 moveDirection = new Vector3(input.x, 0, input.y) * playerSpeed;
-        playerRigidbody.linearVelocity = new Vector3(moveDirection.x, playerRigidbody.linearVelocity.y, moveDirection.z);
+        float h = Input.GetAxis("Horizontal");
+        float v = Input.GetAxis("Vertical");
+
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+        forward.y = 0; right.y = 0;
+
+        moveDirection = (forward * v + right * h).normalized;
+        playerRigidbody.linearVelocity = new Vector3(moveDirection.x * moveSpeed, playerRigidbody.linearVelocity.y, moveDirection.z * moveSpeed);
     }
 
     private void Jump()
@@ -27,7 +35,6 @@ public class PlayerController : MonoBehaviour
         {
             playerRigidbody.linearVelocity = new Vector3(playerRigidbody.linearVelocity.x, jumpForce, playerRigidbody.linearVelocity.z);
             isGrounded = false;
-            Debug.Log("Player Jumped");
         }
     }
 
@@ -35,17 +42,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            isGrounded = true;  
-            Debug.Log("Player Landed on Ground");
-        }
-    }
-
-    private void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = false;
-            Debug.Log("Player Left the Ground");
+            isGrounded = true;
         }
     }
 }
